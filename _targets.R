@@ -2,7 +2,7 @@ library(targets)
 library(tidyverse)
 library(tidymodels)
 library(qs2)
-library(crew)
+# library(crew)
 library(crew.cluster)
 
 scriptlines_apptainer <- "apptainer"
@@ -41,7 +41,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   ),
   garbage_collection = TRUE,
   reset_globals = TRUE,
-  tasks_max = 1
+  tasks_max = Inf
 )
 
 beethoven_packages <- c(

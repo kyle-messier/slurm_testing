@@ -39,7 +39,6 @@ controller_grid <- crew.cluster::crew_controller_slurm(
     path = "pipeline/",
     seconds_interval = 1
   ),
-  host = Sys.info()["nodename"],
   garbage_collection = TRUE,
   reset_globals = TRUE,
   tasks_max = 1

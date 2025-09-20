@@ -3,3 +3,7 @@ _targets/
 .Rhistory
 .RData
 .Rproj.user
+
+slurm/
+pipeline/
+targets/

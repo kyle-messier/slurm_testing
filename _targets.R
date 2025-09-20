@@ -1,33 +1,28 @@
 library(targets)
 library(tidyverse)
 library(tidymodels)
-library(bonsai)
 library(qs2)
 library(crew)
 library(crew.cluster)
 
 scriptlines_apptainer <- "apptainer"
 scriptlines_basedir <- "$PWD"
-scriptlines_targetdir <- "/ddn/gs1/group/set/Projects/beethoven"
-scriptlines_inputdir <- "/ddn/gs1/group/set/Projects/NRT-AP-Model/input"
 scriptlines_container <- "container_models.sif"
 
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
-  #SBATCH --partition=highmem,geo \
+  #SBATCH --partition=geo \
   #SBATCH --requeue \  
   #SBATCH --ntasks=1 \
   #SBATCH --cpus-per-task=1 \
   #SBATCH --mem=10G \
   #SBATCH --error=slurm/grid_%j.out \
-  module load R451 \
   export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK \
   {scriptlines_apptainer} exec --env OMP_NUM_THREADS=$OMP_NUM_THREADS ",
   "--bind {scriptlines_basedir}:/mnt ",
-  "--bind {scriptlines_inputdir}:/input ",
   "--bind /run/munge:/run/munge ",
   "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
-  "--bind {scriptlines_targetdir}/targets:/opt/_targets ",
+  "--bind {scriptlines_basedir}/targets:/opt/_targets ",
   "{scriptlines_container} \\"
 )
 
@@ -45,7 +40,9 @@ controller_grid <- crew.cluster::crew_controller_slurm(
     seconds_interval = 1
   ),
   host = Sys.info()["nodename"],
-  garbage_collection = TRUE
+  garbage_collection = TRUE,
+  reset_globals = TRUE,
+  tasks_max = 1
 )
 
 beethoven_packages <- c(
@@ -98,6 +95,7 @@ targets::tar_option_set(
 )
 
 targets::tar_source("target_slurm_test.R")
+targets::tar_source()
 
 targets::tar_config_set(store = "/opt/_targets")
 

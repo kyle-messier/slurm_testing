@@ -31,6 +31,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   name = "controller_grid",
   workers = 10,
   crashes_max = 5L,
+  seconds_idle = 30,
   options_cluster = crew.cluster::crew_options_slurm(
     verbose = TRUE,
     script_lines = scriptlines_grid,

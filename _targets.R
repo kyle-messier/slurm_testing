@@ -11,7 +11,7 @@ scriptlines_container <- "container_models.sif"
 
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
-  #SBATCH --partition=geo \
+  #SBATCH --partition=highmem \
   #SBATCH --requeue \  
   #SBATCH --ntasks=1 \
   #SBATCH --cpus-per-task=1 \

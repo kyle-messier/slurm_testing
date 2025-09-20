@@ -33,7 +33,8 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   crashes_max = 5L,
   options_cluster = crew.cluster::crew_options_slurm(
     verbose = TRUE,
-    script_lines = scriptlines_grid
+    script_lines = scriptlines_grid,
+    time_minutes = 5
   ),
   options_metrics = crew::crew_options_metrics(
     path = "pipeline/",
@@ -41,7 +42,8 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   ),
   garbage_collection = TRUE,
   reset_globals = TRUE,
-  tasks_max = Inf
+  tasks_max = Inf,
+  seconds_exit = 60
 )
 
 beethoven_packages <- c(

@@ -1,0 +1,53 @@
+Error:
+! targets::tar_make() error
+
+── Debugging ───────────────────────────────────────────────────────────────────
+    • tar_errored()
+    • tar_meta(fields = any_of("error"), complete_only = TRUE)
+    • tar_workspace()
+    • tar_workspaces()
+
+── How to ──────────────────────────────────────────────────────────────────────
+    • Debug: https://books.ropensci.org/targets/debugging.html
+    • Help: https://books.ropensci.org/targets/help.html
+
+── Last error message ──────────────────────────────────────────────────────────
+    Failed to evaluate glue component {scriptlines_apptainer}
+Caused by error:
+! object 'scriptlines_apptainer' not found
+
+── Last error traceback ────────────────────────────────────────────────────────
+    base::tryCatch(base::withCallingHandlers({ NULL base::saveRDS(base::do.c...
+    tryCatchList(expr, classes, parentenv, handlers)
+    tryCatchOne(tryCatchList(expr, names[-nh], parentenv, handlers[-nh]), na...
+    doTryCatch(return(expr), name, parentenv, handler)
+    tryCatchList(expr, names[-nh], parentenv, handlers[-nh])
+    tryCatchOne(expr, names, parentenv, handlers[[1L]])
+    doTryCatch(return(expr), name, parentenv, handler)
+    base::withCallingHandlers({ NULL base::saveRDS(base::do.call(base::do.ca...
+    base::saveRDS(base::do.call(base::do.call, base::c(base::readRDS("/tmp/R...
+    base::do.call(base::do.call, base::c(base::readRDS("/tmp/RtmpJsD2Pt/call...
+    (function (what, args, quote = FALSE, envir = parent.frame()) { if (!is....
+    (function (targets_function, targets_arguments, options, envir = NULL, s...
+    tryCatch(out <- withCallingHandlers(targets::tar_callr_inner_try(targets...
+    tryCatchList(expr, classes, parentenv, handlers)
+    tryCatchOne(expr, names, parentenv, handlers[[1L]])
+    doTryCatch(return(expr), name, parentenv, handler)
+    withCallingHandlers(targets::tar_callr_inner_try(targets_function = targ...
+    targets::tar_callr_inner_try(targets_function = targets_function, target...
+    eval(parse(file = script, keep.source = TRUE), envir = envir)
+    eval(parse(file = script, keep.source = TRUE), envir = envir)
+    glue::glue("#SBATCH --job-name=grid \n  #SBATCH --partition=highmem,geo ...
+    glue_data(.x = NULL, ..., .sep = .sep, .envir = .envir, .open = .open, ....
+    (function (expr) { eval_func <- .transformer(expr, env) %||% .null tryCa...
+    .transformer(expr, env) %||% .null
+    .transformer(expr, env)
+    with_glue_error(eval(expr, envir), paste0("Failed to evaluate glue compo...
+    withCallingHandlers(expr, error = function(cnd) { rlang::abort(message, ...
+    eval(expr, envir)
+    eval(expr, envir)
+    .handleSimpleError(function (cnd) { rlang::abort(message, parent = cnd, ...
+    h(simpleError(msg, call))
+    rlang::abort(message, parent = cnd, call = NULL)
+    signal_abort(cnd, .file)
+Execution halted

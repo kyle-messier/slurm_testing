@@ -1,0 +1,32 @@
+Active library paths:
+[1] "/ddn/gs1/home/messierkp/R/x86_64-pc-linux-gnu-library/4.4"
+[2] "/usr/local/lib/R/library"                                 
+Active PATH:
+[1] "/usr/local/cuda/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Active LD_LIBRARY_PATH:
+[1] "/usr/local/lib/R/lib:/usr/local/lib:/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/.singularity.d/libs"
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+── Attaching packages ────────────────────────────────────── tidymodels 1.3.0 ──
+✔ broom        1.0.7     ✔ rsample      1.2.1
+✔ dials        1.4.0     ✔ tune         1.3.0
+✔ infer        1.0.7     ✔ workflows    1.2.0
+✔ modeldata    1.4.0     ✔ workflowsets 1.1.0
+✔ parsnip      1.3.1     ✔ yardstick    1.3.2
+✔ recipes      1.1.1     
+── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ scales::discard() masks purrr::discard()
+✖ dplyr::filter()   masks stats::filter()
+✖ recipes::fixed()  masks stringr::fixed()
+✖ dplyr::lag()      masks stats::lag()
+✖ yardstick::spec() masks readr::spec()
+✖ recipes::step()   masks stats::step()
+qs2 0.1.5

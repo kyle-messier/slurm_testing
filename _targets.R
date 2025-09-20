@@ -2,15 +2,105 @@ library(targets)
 library(tidyverse)
 library(tidymodels)
 library(bonsai)
-library(qs2) # For efficient storage of data objects.
-# Set target options:
-tar_option_set(
-  packages = c("targets", "tidyverse", "tidymodels", "bonsai", "qs2"),
-  error = "continue"
+library(qs2)
+library(crew)
+library(crew.cluster)
+
+scriptlines_apptainer <- "apptainer"
+scriptlines_basedir <- "$PWD"
+scriptlines_targetdir <- "/ddn/gs1/group/set/Projects/beethoven"
+scriptlines_inputdir <- "/ddn/gs1/group/set/Projects/NRT-AP-Model/input"
+scriptlines_container <- "container_models.sif"
+
+scriptlines_grid <- glue::glue(
+  "#SBATCH --job-name=grid \
+  #SBATCH --partition=highmem,geo \
+  #SBATCH --requeue \  
+  #SBATCH --ntasks=1 \
+  #SBATCH --cpus-per-task=1 \
+  #SBATCH --mem=10G \
+  #SBATCH --error=slurm/grid_%j.out \
+  module load R451 \
+  export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK \
+  {scriptlines_apptainer} exec --env OMP_NUM_THREADS=$OMP_NUM_THREADS ",
+  "--bind {scriptlines_basedir}:/mnt ",
+  "--bind {scriptlines_inputdir}:/input ",
+  "--bind /run/munge:/run/munge ",
+  "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
+  "--bind {scriptlines_targetdir}/targets:/opt/_targets ",
+  "{scriptlines_container} \\"
 )
+
+
+controller_grid <- crew.cluster::crew_controller_slurm(
+  name = "controller_grid",
+  workers = 10,
+  crashes_max = 5L,
+  options_cluster = crew.cluster::crew_options_slurm(
+    verbose = TRUE,
+    script_lines = scriptlines_grid
+  ),
+  options_metrics = crew::crew_options_metrics(
+    path = "pipeline/",
+    seconds_interval = 1
+  ),
+  host = Sys.info()["nodename"],
+  garbage_collection = TRUE
+)
+
+beethoven_packages <- c(
+  "amadeus",
+  "targets",
+  "tarchetypes",
+  # "sqltargets",
+  "chopin",
+  "dplyr",
+  "tidyverse",
+  "data.table",
+  "sf",
+  "crew",
+  "crew.cluster",
+  "lubridate",
+  "mirai",
+  "qs2",
+  "torch",
+  "parsnip",
+  "bonsai",
+  "dials",
+  "lightgbm",
+  "glmnet",
+  "finetune",
+  "spatialsample",
+  "tidymodels",
+  "brulee",
+  "workflows",
+  "h3",
+  "h3r",
+  "autometric"
+)
+
+targets::tar_option_set(
+  packages = beethoven_packages,
+  repository = "local",
+  error = "continue",
+  memory = "auto",
+  format = "qs",
+  storage = "worker",
+  deployment = "worker",
+  seed = 202401L,
+  controller = crew::crew_controller_group(
+    controller_grid
+  ),
+  resources = targets::tar_resources(
+    crew = targets::tar_resources_crew(controller = "controller_grid")
+  ),
+  retrieval = "worker"
+)
+
+targets::tar_source("target_slurm_test.R")
 
 targets::tar_config_set(store = "/opt/_targets")
 
 list(
-  # Add your targets here
+  target_slurm_test
 )

@@ -1,0 +1,5 @@
+*.sif
+_targets/
+.Rhistory
+.RData
+.Rproj.user

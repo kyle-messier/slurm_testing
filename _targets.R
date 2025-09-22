@@ -9,6 +9,22 @@ scriptlines_apptainer <- "apptainer"
 scriptlines_basedir <- "$PWD"
 scriptlines_container <- "container_models.sif"
 
+# scriptlines_grid <- glue::glue(
+#   "#SBATCH --job-name=grid \
+#   #SBATCH --partition=highmem \
+#   #SBATCH --requeue \
+#   #SBATCH --ntasks=1 \
+#   #SBATCH --cpus-per-task=1 \
+#   #SBATCH --mem=10G \
+#   #SBATCH --error=slurm/grid_%j.out \
+#   export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK \
+#   {scriptlines_apptainer} exec --env OMP_NUM_THREADS=$OMP_NUM_THREADS ",
+#   "--bind {scriptlines_basedir}:/mnt ",
+#   "--bind /run/munge:/run/munge ",
+#   "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
+#   "--bind {scriptlines_basedir}/targets:/opt/_targets ",
+#   "{scriptlines_container} \\"
+# )
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
   #SBATCH --partition=highmem \
@@ -16,16 +32,8 @@ scriptlines_grid <- glue::glue(
   #SBATCH --ntasks=1 \
   #SBATCH --cpus-per-task=1 \
   #SBATCH --mem=10G \
-  #SBATCH --error=slurm/grid_%j.out \
-  export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK \
-  {scriptlines_apptainer} exec --env OMP_NUM_THREADS=$OMP_NUM_THREADS ",
-  "--bind {scriptlines_basedir}:/mnt ",
-  "--bind /run/munge:/run/munge ",
-  "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
-  "--bind {scriptlines_basedir}/targets:/opt/_targets ",
-  "{scriptlines_container} \\"
+  #SBATCH --error=slurm/grid_%j.out \\"
 )
-
 
 controller_grid <- crew.cluster::crew_controller_slurm(
   name = "controller_grid",
@@ -43,7 +51,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   ),
   garbage_collection = TRUE,
   reset_globals = TRUE,
-  tasks_max = Inf,
+  tasks_max = 1,
   seconds_exit = 60
 )
 
@@ -62,7 +70,6 @@ beethoven_packages <- c(
   "lubridate",
   "mirai",
   "qs2",
-  "torch",
   "parsnip",
   "bonsai",
   "dials",
@@ -81,10 +88,10 @@ beethoven_packages <- c(
 targets::tar_option_set(
   packages = beethoven_packages,
   repository = "local",
-  error = "continue",
+  error = "trim",
   memory = "auto",
   format = "qs",
-  storage = "worker",
+  storage = "main",
   deployment = "worker",
   seed = 202401L,
   controller = crew::crew_controller_group(
@@ -99,7 +106,8 @@ targets::tar_option_set(
 targets::tar_source("target_slurm_test.R")
 targets::tar_source()
 
-targets::tar_config_set(store = "/opt/_targets")
+# targets::tar_config_set(store = "/opt/_targets")
+targets::tar_config_set(store = "targets")
 
 list(
   target_slurm_test

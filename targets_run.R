@@ -11,4 +11,6 @@
 # Sys.getenv("LD_LIBRARY_PATH")
 
 ############################      RUN PIPELINE      ############################
-targets::tar_make()
+targets::tar_make(
+  reporter = "verbose_positives"
+)

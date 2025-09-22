@@ -25,4 +25,4 @@ apptainer exec \
   --bind /run/munge:/run/munge \
   --bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm \
   container_models.sif \
-  /usr/local/lib/R/bin/Rscript --no-init-file /mnt/targets_run.R
+  Rscript --no-save --no-restore /mnt/targets_run.R

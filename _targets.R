@@ -9,9 +9,11 @@ scriptlines_apptainer <- "apptainer"
 scriptlines_basedir <- "$PWD"
 scriptlines_container <- "container_models.sif"
 
+
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
   #SBATCH --partition=highmem \
+  #SBATCH --export=ALL  \
   #SBATCH --requeue \  
   #SBATCH --ntasks=1 \
   #SBATCH --cpus-per-task=1 \
@@ -43,7 +45,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   ),
   garbage_collection = TRUE,
   reset_globals = TRUE,
-  tasks_max = Inf,
+  tasks_max = 1,
   seconds_exit = 60
 )
 

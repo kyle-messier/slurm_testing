@@ -21,8 +21,8 @@
 # Fit CPU-enabled base learner models via container_models.sif.
 apptainer exec \
   --bind $PWD:/mnt \
-  --bind targets:/opt/_targets \
+  --bind $PWD/targets:/opt/_targets \
   --bind /run/munge:/run/munge \
   --bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm \
-  container_models.sif \
+  slurm_testing.sif \
   Rscript --no-save --no-restore /mnt/targets_run.R

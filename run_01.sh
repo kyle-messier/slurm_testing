@@ -19,10 +19,4 @@
 # Set environmental variable to indicate CPU-enabled model fitting targets.
 
 # Fit CPU-enabled base learner models via container_models.sif.
-apptainer exec \
-  --bind $PWD:/mnt \
-  --bind $PWD/targets:/opt/_targets \
-  --bind /run/munge:/run/munge \
-  --bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm \
-  slurm_testing.sif \
-  Rscript --no-save --no-restore /mnt/targets_run.R
+Rscript --no-save --no-restore targets_run.R

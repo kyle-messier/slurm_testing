@@ -2,29 +2,8 @@ library(targets)
 library(tidyverse)
 library(tidymodels)
 library(qs2)
-# library(crew)
+library(crew)
 library(crew.cluster)
-
-scriptlines_apptainer <- "apptainer"
-scriptlines_basedir <- "$PWD"
-scriptlines_container <- "slurm_testing.sif"
-
-
-scriptlines_grid <- glue::glue(
-  "#SBATCH --job-name=grid \
-  #SBATCH --partition=highmem \
-  #SBATCH --ntasks=1 \
-  #SBATCH --cpus-per-task=1 \
-  #SBATCH --mem=10G \
-  #SBATCH --error=slurm/grid_%j.out \
-  export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK \
-  {scriptlines_apptainer} exec --env OMP_NUM_THREADS=$OMP_NUM_THREADS ",
-  "--bind {scriptlines_basedir}:/mnt ",
-  "--bind /run/munge:/run/munge ",
-  "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
-  "--bind {scriptlines_basedir}/targets:/opt/_targets ",
-  "{scriptlines_container} \\"
-)
 
 
 controller_grid <- crew.cluster::crew_controller_slurm(
@@ -34,7 +13,8 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   seconds_idle = 30,
   options_cluster = crew.cluster::crew_options_slurm(
     verbose = TRUE,
-    script_lines = scriptlines_grid,
+    memory_gigabytes_required = 10,
+    cpus_per_task = 1,
     time_minutes = 5
   ),
   options_metrics = crew::crew_options_metrics(
@@ -73,8 +53,6 @@ beethoven_packages <- c(
   "tidymodels",
   "brulee",
   "workflows",
-  "h3",
-  "h3r",
   "autometric"
 )
 
@@ -99,7 +77,8 @@ targets::tar_option_set(
 targets::tar_source("target_slurm_test.R")
 targets::tar_source()
 
-targets::tar_config_set(store = "/opt/_targets")
+targets::tar_config_set(store = "targets")
+
 
 list(
   target_slurm_test

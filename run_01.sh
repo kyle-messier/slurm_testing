@@ -24,5 +24,5 @@ apptainer exec \
   --bind targets:/opt/_targets \
   --bind /run/munge:/run/munge \
   --bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm \
-  container_models.sif \
+  slurm_testing.sif \
   /usr/local/lib/R/bin/Rscript --no-init-file /mnt/targets_run.R

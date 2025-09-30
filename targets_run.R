@@ -12,5 +12,5 @@
 
 ############################      RUN PIPELINE      ############################
 targets::tar_make(
-  reporter = "verbose_positives"
+  reporter = "verbose"
 )

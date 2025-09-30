@@ -1,18 +1,16 @@
 library(targets)
 library(tidyverse)
-library(tidymodels)
-library(qs2)
-# library(crew)
+library(sf)
+library(crew)
 library(crew.cluster)
 
 scriptlines_apptainer <- "apptainer"
 scriptlines_basedir <- "$PWD"
-scriptlines_container <- "container_models.sif"
+scriptlines_container <- "slurm_testing.sif"
 
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
-  #SBATCH --partition=highmem \
-  #SBATCH --requeue \  
+  #SBATCH --partition=geo \
   #SBATCH --ntasks=1 \
   #SBATCH --cpus-per-task=1 \
   #SBATCH --mem=10G \
@@ -43,7 +41,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   ),
   garbage_collection = TRUE,
   reset_globals = TRUE,
-  tasks_max = Inf,
+  tasks_max = 1,
   seconds_exit = 60
 )
 

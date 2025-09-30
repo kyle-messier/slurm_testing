@@ -13,16 +13,10 @@
 
 ###############################      GPU SETUP     #############################
 # Ensure all allocated GPUs are visible
-# export CUDA_VISIBLE_DEVICES=$(echo $(seq 0 $((SLURM_GPUS_ON_NODE-1))) | tr ' ' ',')
+export CUDA_VISIBLE_DEVICES=$(echo $(seq 0 $((SLURM_GPUS_ON_NODE-1))) | tr ' ' ',')
 
 #############################        MODELS        #############################
 # Set environmental variable to indicate CPU-enabled model fitting targets.
 
 # Fit CPU-enabled base learner models via container_models.sif.
-apptainer exec \
-  --bind $PWD:/mnt \
-  --bind targets:/opt/_targets \
-  --bind /run/munge:/run/munge \
-  --bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm \
-  container_models.sif \
-  /usr/local/lib/R/bin/Rscript --no-init-file /mnt/targets_run.R
+Rscript --no-save --no-restore targets_run.R

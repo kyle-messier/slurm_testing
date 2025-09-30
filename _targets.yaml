@@ -1,2 +1,2 @@
 main:
-  store: targets
+  store: /opt/_targets

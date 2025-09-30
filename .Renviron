@@ -1,8 +1,0 @@
-RENV_CONFIG_SANDBOX_ENABLED=false
-RENV_CONFIG_SYNCHRONIZED_CHECK=false
-
-
-RENV_PROJECT=.
-
-CUDA_HOME = /usr/local/cuda
-LD_LIBRARY_PATH = /usr/local/cuda/lib64

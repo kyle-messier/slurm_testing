@@ -27,6 +27,46 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   seconds_exit = 60
 )
 
+# scriptlines_apptainer <- "apptainer"
+# scriptlines_basedir <- "$PWD"
+# scriptlines_inputdir <- "/ddn/gs1/group/set/Projects/NRT-AP-Model/input"
+# scriptlines_container <- "slurm_testing.sif"
+# scriptlines_mlp <- glue::glue(
+#   "#SBATCH --job-name=mlp \
+#   #SBATCH --partition=geo \
+#   #SBATCH --gres=gpu:1 \
+#   #SBATCH --error=slurm/mlp_%j.out \
+#   {scriptlines_apptainer} exec --nv --env ",
+#   "CUDA_VISIBLE_DEVICES=${{GPU_DEVICE_ORDINAL}} ",
+#   "--bind {scriptlines_basedir}:/mnt ",
+#   "--bind targets:/opt/_targets ",
+#   "{scriptlines_container} \\"
+# )
+# controller_gpu <- crew.cluster::crew_controller_slurm(
+#   name = "controller_gpu",
+#   workers = 4,
+#   options_cluster = crew.cluster::crew_options_slurm(
+#     verbose = TRUE,
+#     script_lines = scriptlines_mlp
+#   )
+# )
+
+scriptlines_mlp <- glue::glue(
+  "#SBATCH --job-name=mlp \
+  #SBATCH --partition=geo \
+  #SBATCH --gres=gpu:1 \
+  #SBATCH --error=slurm/mlp_%j.out \\"
+)
+controller_gpu <- crew.cluster::crew_controller_slurm(
+  name = "controller_gpu",
+  workers = 4,
+  options_cluster = crew.cluster::crew_options_slurm(
+    verbose = TRUE,
+    script_lines = scriptlines_mlp
+  )
+)
+
+
 beethoven_packages <- c(
   "amadeus",
   "targets",
@@ -66,7 +106,8 @@ targets::tar_option_set(
   deployment = "worker",
   seed = 202401L,
   controller = crew::crew_controller_group(
-    controller_grid
+    controller_grid,
+    controller_gpu
   ),
   resources = targets::tar_resources(
     crew = targets::tar_resources_crew(controller = "controller_grid")
@@ -76,7 +117,7 @@ targets::tar_option_set(
 
 targets::tar_source("target_slurm_test.R")
 targets::tar_source()
-
+targets::tar_source("renv/activate.R")
 targets::tar_config_set(store = "targets")
 
 

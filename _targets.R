@@ -13,6 +13,9 @@ path2 <- val <- Sys.getenv("PATH2")
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
   #SBATCH --error=slurm/grid_%j.out \
+  unset R_LIBS_USER; \
+  unset R_LIBS_SITE; \
+  unset LD_LIBRARY_PATH; \
   {scriptlines_apptainer} exec ",
   "--cleanenv ",
   "  --env R_LIBS_USER=/opt/Rlibs ",

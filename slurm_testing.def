@@ -1,11 +1,5 @@
 BootStrap: docker
-From: rocker/r-ver:4.3.2
-
-%files
-%files
-    renv.lock /project/renv.lock
-    renv/ /project/renv/
-
+From: rocker/ml-verse:latest
 
 %post
     # Set up locales
@@ -16,9 +10,6 @@ From: rocker/r-ver:4.3.2
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    # Prevent renv auto-activation inside the container build
-    export R_PROFILE=NULL
-    export R_ENVIRON=NULL    
 
     # Basic utilities
     # Update system and install necessary dependencies
@@ -72,29 +63,87 @@ From: rocker/r-ver:4.3.2
         libgmp-dev \
         && rm -rf /var/lib/apt/lists/*
 
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y slurm-client munge && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*        
 
 
-    # Create project directory
-    mkdir -p /project
-    cd /project
+    # Set default library to /opt/Rlibs
+    echo 'R_LIBS_USER=/opt/Rlibs' >> /etc/environment
+    echo 'R_LIBS=/opt/Rlibs' >> /etc/environment
+    echo 'R_LIBS_SITE=/opt/Rlibs' >> /etc/environment
+
+
+
+
+
+
+    # Create directories
+    mkdir /pipeline
+    mkdir /input
+    mkdir /opt/_targets
+    mkdir /opt/Rlibs
+    chmod -R 777 /opt/Rlibs
+
+    export R_LIBS_USER=/opt/Rlibs
+    export RENV_PATHS_LIBRARY=/opt/Rlibs
 
     # Pre-install some bootstrap packages so renv can resolve dependencies faster
-    Rscript --no-init-file -e "install.packages(c('renv','pak','devtools'), repos = 'https://cloud.r-project.org')"
+    Rscript -e ".libPaths('/opt/Rlibs'); install.packages(c('renv','pak','devtools'), repos = 'https://cloud.r-project.org')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('targets', upgrade = TRUE)"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('tarchetypes', upgrade = TRUE)"    
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('crew', upgrade = TRUE)"    
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('crew.cluster', upgrade = TRUE)"    
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('mirai', upgrade = TRUE)"    
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('nanonext', upgrade = TRUE)"        
 
-    # Restore packages defined in renv.lock
-    Rscript -e 'renv::restore(lockfile = "/project/renv.lock", prompt = FALSE)'
+    # Install R packages (mimicking rocker/ml-verse setup)
+    Rscript -e ".libPaths('/opt/Rlibs'); install.packages(c('R6', 'data.table', 'jsonlite', 'knitr'), \
+        repos = 'https://cran.r-project.org')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('mitchellmanware/parsnip@beethoven')"
+    Rscript -e ".libPaths('/opt/Rlibs'); install.packages(c('tarchetypes', 'sqltargets', \
+        'testthat', 'tidymodels', 'bonsai', 'qs2', \
+        'tidyverse', 'glmnet', 'covr', 'lightgbm'))"
+    Rscript -e ".libPaths('/opt/Rlibs'); devtools::install_version('torch', version = '0.15.1')"
+    Rscript -e ".libPaths('/opt/Rlibs'); options(timeout = 1800); torch::install_torch(version = 'latest', type = 'gpu')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('tidymodels/brulee@gpu')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('wlandau/autometric')"
+    Rscript -e ".libPaths('/opt/Rlibs'); install.packages(c('scoringRules', 'future.mirai', 'vetiver', \
+        'lwgeom', 'doRNG', 'quarto', 'kernlab', 'arrow', 'h3r'))"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('finetune')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('lme4',upgrade = TRUE)"
+    Rscript -e ".libPaths('/opt/Rlibs'); remotes::install_github('crazycapivara/h3-r')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('ropensci/chopin')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('NIEHS/amadeus')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('NIEHS/beethoven')"
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('r-lib/ps', upgrade = TRUE)"    
+    Rscript -e ".libPaths('/opt/Rlibs'); pak::pak('tidymodels', upgrade = TRUE)"    
 
 %environment
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     export TERM=xterm-256color
-    export WORKDIR=/project
-    export RENV_PATHS_CACHE=/renv/cache
-    export R_LIBS_USER=/project/renv/library
+    SHELL=/bin/bash
+    LANG=en_US.UTF-8
+    OMP_NUM_THREADS=1
+    OPENBLAS_NUM_THREADS=1
+    export SHELL LANG OMP_NUM_THREADS OPENBLAS_NUM_THREADS 
 
-%runscript
-    cd /project
-    exec "$@"
+    # Optionally preconfigure R
+    export R_HOME=/usr/lib/R
+    export R_LIBS_USER=/opt/Rlibs    
+
 
 %labels
-    Project-specific R 4.3.2 container with renv restored
+    Project: slurm_testing
+
+%runscript
+    #!/bin/bash
+    set -euo pipefail
+
+    trap 'echo "Received SIGTERM, cleaning up"; exit 0' SIGTERM SIGINT SIGHUP SIGPIPE
+
+    echo "Container started"
+    "$@"
+
+

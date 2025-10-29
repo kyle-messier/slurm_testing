@@ -10,11 +10,15 @@
 #SBATCH --error=slurm/dispatch_%j.err
 #SBATCH --output=slurm/dispatch_%j.out
 
+export PATH1="/ddn/gs1/home/messierkp/R/x86_64-pc-linux-gnu-library/4.3"
+export PATH2="/ddn/gs1/biotools/R/lib64/R/library"
+export BASEDIR=$PWD
 
-apptainer exec \
-  --bind $PWD:/mnt \
-  --bind targets:/opt/_targets \
-  --bind /run/munge:/run/munge \
-  --bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm \
-  slurm_testing.sif \
-  /usr/local/lib/R/bin/Rscript --no-init-file /mnt/targets_run.R
+R_LIBS_USER=""
+R_LIBS_SITE=""
+unset R_LIBS_USER
+unset R_LIBS_SITE
+unset LD_LIBRARY_PATH
+
+
+Rscript targets_run.R

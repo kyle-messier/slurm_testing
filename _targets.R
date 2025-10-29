@@ -1,26 +1,28 @@
 library(targets)
 library(tidyverse)
-library(sf)
 library(crew)
 library(crew.cluster)
 
 scriptlines_apptainer <- "apptainer"
-scriptlines_basedir <- "$PWD"
+scriptlines_basedir <- Sys.getenv("BASEDIR")
 scriptlines_container <- "slurm_testing.sif"
+
+path1 <- val <- Sys.getenv("PATH1")
+path2 <- val <- Sys.getenv("PATH2")
 
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
-  #SBATCH --partition=geo \
-  #SBATCH --ntasks=1 \
-  #SBATCH --cpus-per-task=1 \
-  #SBATCH --mem=10G \
   #SBATCH --error=slurm/grid_%j.out \
-  export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK \
-  {scriptlines_apptainer} exec --env OMP_NUM_THREADS=$OMP_NUM_THREADS ",
+  {scriptlines_apptainer} exec ",
+  "--cleanenv ",
+  "  --env R_LIBS_USER=/opt/Rlibs ",
+  "--no-home ",
+  "--no-mount {path1} ",
+  "--no-mount {path2} ",
   "--bind {scriptlines_basedir}:/mnt ",
   "--bind /run/munge:/run/munge ",
-  "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
-  "--bind {scriptlines_basedir}/targets:/opt/_targets ",
+  "--bind /ddn/gs1/tools/slurm/etc/slurm:/etc/slurm ",
+  "--bind {scriptlines_basedir}/_targets:/opt/_targets ",
   "{scriptlines_container} \\"
 )
 
@@ -29,31 +31,30 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   name = "controller_grid",
   workers = 50,
   crashes_max = 5L,
-  seconds_idle = 30,
+  tasks_max = 1,
   options_cluster = crew.cluster::crew_options_slurm(
     verbose = TRUE,
     script_lines = scriptlines_grid,
-    time_minutes = 5
+    n_tasks = 1,
+    cpus_per_task = 1,
+    partition = "geo",
+    memory_gigabytes_required = 10
   ),
   options_metrics = crew::crew_options_metrics(
-    path = "pipeline/",
-    seconds_interval = 1
+    path = "pipeline/"
   ),
-  garbage_collection = TRUE,
-  reset_globals = TRUE,
-  tasks_max = 1,
-  seconds_exit = 60
+  garbage_collection = TRUE
 )
 
 beethoven_packages <- c(
   "amadeus",
   "targets",
   "tarchetypes",
+  "data.table",
   # "sqltargets",
   "chopin",
   "dplyr",
   "tidyverse",
-  "data.table",
   "sf",
   "crew",
   "crew.cluster",
@@ -97,7 +98,7 @@ targets::tar_option_set(
 targets::tar_source("target_slurm_test.R")
 targets::tar_source()
 
-targets::tar_config_set(store = "/opt/_targets")
+targets::tar_config_set(store = "_targets")
 
 list(
   target_slurm_test

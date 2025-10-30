@@ -6,7 +6,6 @@ library(crew.cluster)
 scriptlines_apptainer <- "apptainer"
 scriptlines_basedir <- Sys.getenv("BASEDIR")
 scriptlines_container <- "slurm_testing.sif"
-
 path1 <- val <- Sys.getenv("PATH1")
 path2 <- val <- Sys.getenv("PATH2")
 
@@ -16,17 +15,19 @@ scriptlines_grid <- glue::glue(
   unset R_LIBS_USER; \
   unset R_LIBS_SITE; \
   unset LD_LIBRARY_PATH; \
-  {scriptlines_apptainer} exec ",
+  export R_LIBS='/opt/Rlibs'; \
+  export R_LIBS_SITE='/opt/Rlibs'; \
+  export R_LIBS_USER='/opt/Rlibs'; \
+  apptainer exec ",
   "--cleanenv ",
   "  --env R_LIBS_USER=/opt/Rlibs ",
-  "--no-home ",
-  "--no-mount {path1} ",
-  "--no-mount {path2} ",
-  "--bind {scriptlines_basedir}:/mnt ",
+  "  --env R_LIBS_SITE=/opt/Rlibs ",
+  "  --env R_LIBS=/opt/Rlibs ",
+  "--bind /ddn/gs1/home/messierkp/slurm_testing:/mnt ",
   "--bind /run/munge:/run/munge ",
   "--bind /ddn/gs1/tools/slurm/etc/slurm:/etc/slurm ",
-  "--bind {scriptlines_basedir}/_targets:/opt/_targets ",
-  "{scriptlines_container} \\"
+  "--bind /ddn/gs1/home/messierkp/slurm_testing/_targets:/opt/_targets ",
+  "slurm_testing.sif \\"
 )
 
 
@@ -81,7 +82,7 @@ beethoven_packages <- c(
 )
 
 targets::tar_option_set(
-  packages = beethoven_packages,
+  packages = character(0),
   repository = "local",
   error = "continue",
   memory = "auto",
@@ -101,7 +102,7 @@ targets::tar_option_set(
 targets::tar_source("target_slurm_test.R")
 targets::tar_source()
 
-targets::tar_config_set(store = "_targets")
+targets::tar_config_set(store = "/opt/_targets")
 
 list(
   target_slurm_test

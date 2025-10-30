@@ -10,7 +10,7 @@ target_slurm_test <-
     tar_target(
       analysis_data,
       {
-        filtered <- raw_data %>% filter(!is.na(Ozone))
+        filtered <- raw_data |> filter(!is.na(Ozone))
         purrr::map(1:50, ~ dplyr::slice_sample(filtered, prop = 0.8))
       },
       resources = targets::tar_resources(

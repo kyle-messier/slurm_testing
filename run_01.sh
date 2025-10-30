@@ -14,11 +14,16 @@ export PATH1="/ddn/gs1/home/messierkp/R/x86_64-pc-linux-gnu-library/4.3"
 export PATH2="/ddn/gs1/biotools/R/lib64/R/library"
 export BASEDIR=$PWD
 
-R_LIBS_USER=""
-R_LIBS_SITE=""
-unset R_LIBS_USER
-unset R_LIBS_SITE
-unset LD_LIBRARY_PATH
 
-
-Rscript targets_run.R
+apptainer exec \
+  --cleanenv \
+  --no-home \
+  --env R_LIBS_USER=/opt/Rlibs \
+  --env R_LIBS_SITE=/opt/Rlibs \
+  --env R_LIBS=/opt/Rlibs \
+  --bind $PWD:/mnt \
+  --bind /run/munge:/run/munge \
+  --bind /ddn/gs1/tools/slurm/etc/slurm:/etc/slurm \
+  --bind $PWD/_targets:/opt/_targets \
+  slurm_testing.sif \
+  Rscript /mnt/targets_run.R

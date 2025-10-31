@@ -1,31 +1,25 @@
 library(targets)
 library(tidyverse)
+# library(sf)
 library(crew)
 library(crew.cluster)
 
-scriptlines_apptainer <- "apptainer"
-scriptlines_basedir <- Sys.getenv("BASEDIR")
-scriptlines_container <- "slurm_testing.sif"
-path1 <- val <- Sys.getenv("PATH1")
-path2 <- val <- Sys.getenv("PATH2")
 
 scriptlines_grid <- glue::glue(
   "#SBATCH --job-name=grid \
+  #SBATCH --partition=highmem \
+  #SBATCH --ntasks=1 \
+  #SBATCH --cpus-per-task=1 \
+  #SBATCH --mem=10G \
   #SBATCH --error=slurm/grid_%j.out \
-  unset R_LIBS_USER; \
-  unset R_LIBS_SITE; \
-  unset LD_LIBRARY_PATH; \
-  export R_LIBS='/opt/Rlibs'; \
-  export R_LIBS_SITE='/opt/Rlibs'; \
-  export R_LIBS_USER='/opt/Rlibs'; \
   apptainer exec ",
-  "--cleanenv ",
-  "  --env R_LIBS_USER=/opt/Rlibs ",
-  "  --env R_LIBS_SITE=/opt/Rlibs ",
-  "  --env R_LIBS=/opt/Rlibs ",
+  "--containall ",
+  "--env R_LIBS='/opt/Rlibs' ",
+  "--env R_LIBS_USER='/opt/Rlibs' ",
+  "--env R_LIBS_SITE='/opt/Rlibs' ",
   "--bind /ddn/gs1/home/messierkp/slurm_testing:/mnt ",
   "--bind /run/munge:/run/munge ",
-  "--bind /ddn/gs1/tools/slurm/etc/slurm:/etc/slurm ",
+  "--bind /ddn/gs1/tools/slurm/etc/slurm:/ddn/gs1/tools/slurm/etc/slurm ",
   "--bind /ddn/gs1/home/messierkp/slurm_testing/_targets:/opt/_targets ",
   "slurm_testing.sif \\"
 )
@@ -35,30 +29,31 @@ controller_grid <- crew.cluster::crew_controller_slurm(
   name = "controller_grid",
   workers = 50,
   crashes_max = 5L,
-  tasks_max = 1,
+  seconds_idle = 30,
   options_cluster = crew.cluster::crew_options_slurm(
     verbose = TRUE,
     script_lines = scriptlines_grid,
-    n_tasks = 1,
-    cpus_per_task = 1,
-    partition = "geo",
-    memory_gigabytes_required = 10
+    time_minutes = 5
   ),
   options_metrics = crew::crew_options_metrics(
-    path = "pipeline/"
+    path = "pipeline/",
+    seconds_interval = 1
   ),
-  garbage_collection = TRUE
+  garbage_collection = TRUE,
+  reset_globals = TRUE,
+  tasks_max = 1,
+  seconds_exit = 60
 )
 
 beethoven_packages <- c(
   "amadeus",
   "targets",
   "tarchetypes",
-  "data.table",
   # "sqltargets",
   "chopin",
   "dplyr",
   "tidyverse",
+  "data.table",
   "sf",
   "crew",
   "crew.cluster",
@@ -82,7 +77,7 @@ beethoven_packages <- c(
 )
 
 targets::tar_option_set(
-  packages = character(0),
+  packages = beethoven_packages,
   repository = "local",
   error = "continue",
   memory = "auto",
@@ -99,8 +94,8 @@ targets::tar_option_set(
   retrieval = "worker"
 )
 
-targets::tar_source("target_slurm_test.R")
-targets::tar_source()
+targets::tar_source("/mnt/target_slurm_test.R")
+targets::tar_source("/mnt/R")
 
 targets::tar_config_set(store = "/opt/_targets")
 

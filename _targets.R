@@ -6,8 +6,9 @@ library(crew.cluster)
 
 
 scriptlines_grid <- glue::glue(
-  "#SBATCH --job-name=grid \
-  #SBATCH --partition=highmem \
+  "#!/bin/bash \
+  #SBATCH --job-name=grid \
+  #SBATCH --partition=geo \
   #SBATCH --ntasks=1 \
   #SBATCH --cpus-per-task=1 \
   #SBATCH --mem=10G \

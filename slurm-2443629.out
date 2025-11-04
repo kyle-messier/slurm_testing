@@ -1,0 +1,7 @@
+couldn't read file "/usr/share/Modules/libexec/modulecmd.tcl": no such file or directory
+slurmstepd: error: execve(): apptainer: No such file or directory
+slurmstepd: error: execve(): apptainer: No such file or directory
+srun: error: cn030309: tasks 2-3: Exited with exit code 2
+FATAL:   "mpitest": executable file not found in $PATH
+FATAL:   "mpitest": executable file not found in $PATH
+srun: error: cn030307: tasks 0-1: Exited with exit code 255

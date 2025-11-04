@@ -1,0 +1,6 @@
+couldn't read file "/usr/share/Modules/libexec/modulecmd.tcl": no such file or directory
+slurmstepd: error: execve(): apptainer: No such file or directory
+slurmstepd: error: execve(): apptainer: No such file or directory
+srun: error: cn030309: tasks 2-3: Exited with exit code 2
+Hello, I am rank 0/1
+Hello, I am rank 0/1

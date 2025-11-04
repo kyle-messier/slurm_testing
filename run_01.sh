@@ -13,17 +13,22 @@
 ############################      CERTIFICATES      ############################
 # Export CURL_CA_BUNDLE and SSL_CERT_FILE environmental variables to vertify
 # servers' SSL certificates during download.
-export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+# export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+# export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 ###############################      GPU SETUP     #############################
 # Ensure all allocated GPUs are visible
 export R_LIBS="/opt/Rlibs"
 export R_LIBS_USER="/opt/Rlibs"
 export R_LIBS_SITE="/opt/Rlibs"
-export LD_LIBRARY_PATH="/opt/Rlibs/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/opt/Rlibs/lib"
+export R_HOME=/usr/lib/R
+# export PATH=/usr/lib/R/bin:$PATH
+# export   CUDA_HOME = "/usr/local/cuda"
 
-apptainer exec \
+
+
+apptainer exec  \
   --bind $PWD:/mnt \
   --bind $PWD/_targets:/opt/_targets \
   --bind /run/munge:/run/munge \

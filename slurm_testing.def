@@ -134,15 +134,8 @@ From: rocker/ml-verse:latest
 
 
 %labels
-    Project: slurm_testing
+    
 
 %runscript
-    #!/bin/bash
-    set -euo pipefail
-
-    trap 'echo "Received SIGTERM, cleaning up"; exit 0' SIGTERM SIGINT SIGHUP SIGPIPE
-
-    echo "Container started"
-    "$@"
 
 

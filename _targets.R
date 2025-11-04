@@ -4,7 +4,8 @@ library(tidyverse)
 library(crew)
 library(crew.cluster)
 
-
+# SBATCH --signal=TERM@10 \
+# setwd("/mnt")
 scriptlines_grid <- glue::glue(
   "#!/bin/bash \
   #SBATCH --job-name=grid \
@@ -13,8 +14,11 @@ scriptlines_grid <- glue::glue(
   #SBATCH --cpus-per-task=1 \
   #SBATCH --mem=10G \
   #SBATCH --error=slurm/grid_%j.out \
+  srun \
+  --ntasks=1 \
+  --cpus-per-task=$SLURM_CPUS_PER_TASK \
+  --mem=$SLURM_MEM_PER_NODE \
   apptainer exec ",
-  "--containall ",
   "--env R_LIBS='/opt/Rlibs' ",
   "--env R_LIBS_USER='/opt/Rlibs' ",
   "--env R_LIBS_SITE='/opt/Rlibs' ",
@@ -25,10 +29,9 @@ scriptlines_grid <- glue::glue(
   "slurm_testing.sif \\"
 )
 
-
 controller_grid <- crew.cluster::crew_controller_slurm(
   name = "controller_grid",
-  workers = 50,
+  workers = 10L,
   crashes_max = 5L,
   seconds_idle = 30,
   options_cluster = crew.cluster::crew_options_slurm(
@@ -41,8 +44,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
     seconds_interval = 1
   ),
   garbage_collection = TRUE,
-  reset_globals = TRUE,
-  tasks_max = 1,
+  tasks_max = 2,
   seconds_exit = 60
 )
 
@@ -78,12 +80,16 @@ beethoven_packages <- c(
 )
 
 targets::tar_option_set(
+  tidy_eval = TRUE,
   packages = beethoven_packages,
   repository = "local",
+  library = "/opt/Rlibs",
   error = "continue",
+  backoff = tar_backoff(min = 5, max = 300),
   memory = "auto",
   format = "qs",
   storage = "worker",
+  retrieval = "worker",
   deployment = "worker",
   seed = 202401L,
   controller = crew::crew_controller_group(
@@ -91,13 +97,13 @@ targets::tar_option_set(
   ),
   resources = targets::tar_resources(
     crew = targets::tar_resources_crew(controller = "controller_grid")
-  ),
-  retrieval = "worker"
+  )
 )
 
-targets::tar_source("/mnt/target_slurm_test.R")
-targets::tar_source("/mnt/R")
-
+targets::tar_source("target_slurm_test.R")
+targets::tar_source()
+# targets::tar_source("target_slurm_test.R")
+# targets::tar_source()
 targets::tar_config_set(store = "/opt/_targets")
 
 list(

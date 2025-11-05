@@ -3,7 +3,7 @@
 #SBATCH --job-name=dispatch
 #SBATCH --mail-user=kyle.messier@nih.gov
 #SBATCH --mail-type=END,FAIL
-#SBATCH --partition=highmem
+#SBATCH --partition=geo
 #SBATCH --ntasks=1
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=1
@@ -23,10 +23,21 @@ export R_LIBS_USER="/opt/Rlibs"
 export R_LIBS_SITE="/opt/Rlibs"
 export LD_LIBRARY_PATH="/opt/Rlibs/lib"
 export R_HOME=/usr/lib/R
-# export PATH=/usr/lib/R/bin:$PATH
-# export   CUDA_HOME = "/usr/local/cuda"
+export PATH=/usr/lib/R/bin:$PATH
 
+export PATH="/usr/local/cuda/bin:\
+/usr/local/nvidia/bin:\
+/usr/local/cuda/bin:\
+/usr/local/sbin:\
+/usr/local/bin:\
+/usr/sbin:\
+/usr/bin:\
+/sbin:\
+/bin"
 
+# ---- CUDA ----
+export CUDA_HOME="/usr/local/cuda"
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64"
 
 apptainer exec  \
   --bind $PWD:/mnt \

@@ -7,18 +7,16 @@ library(crew.cluster)
 # SBATCH --signal=TERM@10 \
 # setwd("/mnt")
 scriptlines_grid <- glue::glue(
-  "#!/bin/bash \
-  #SBATCH --job-name=grid \
-  #SBATCH --partition=geo \
-  #SBATCH --ntasks=1 \
+  "#SBATCH --job-name=grid \
+  #SBATCH --partition=geo,highmem,normal \
   #SBATCH --cpus-per-task=1 \
   #SBATCH --mem=10G \
   #SBATCH --error=slurm/grid_%j.out \
+  #SBATCH --ntasks=1 \
   srun \
-  --ntasks=1 \
-  --cpus-per-task=$SLURM_CPUS_PER_TASK \
-  --mem=$SLURM_MEM_PER_NODE \
+  --exclusive \
   apptainer exec ",
+  "--cleanenv ",
   "--env R_LIBS='/opt/Rlibs' ",
   "--env R_LIBS_USER='/opt/Rlibs' ",
   "--env R_LIBS_SITE='/opt/Rlibs' ",
@@ -32,8 +30,6 @@ scriptlines_grid <- glue::glue(
 controller_grid <- crew.cluster::crew_controller_slurm(
   name = "controller_grid",
   workers = 10L,
-  crashes_max = 5L,
-  seconds_idle = 30,
   options_cluster = crew.cluster::crew_options_slurm(
     verbose = TRUE,
     script_lines = scriptlines_grid,
@@ -44,8 +40,7 @@ controller_grid <- crew.cluster::crew_controller_slurm(
     seconds_interval = 1
   ),
   garbage_collection = TRUE,
-  tasks_max = 2,
-  seconds_exit = 60
+  tasks_max = Inf
 )
 
 beethoven_packages <- c(

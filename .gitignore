@@ -7,3 +7,5 @@ _targets/
 slurm/
 pipeline/
 targets/
+
+mybundle/
